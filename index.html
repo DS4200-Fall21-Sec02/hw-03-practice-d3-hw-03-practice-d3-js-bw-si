@@ -5,6 +5,9 @@
 <head>
   <meta charset='utf-8'>
 
+  <script src="lib/d3.v6.1.1/d3.min.js"></script>
+  
+
   <!-- Title -->
   <title>hw-03: Practicing D3</title>
 
@@ -22,8 +25,15 @@
   <meta name='theme-color' content='#ffffff'>
 </head>
 
+
+
 <!-- Main page content -->
 <body>
+
+
+
+
+
 
   <!-- Update this with your GitHub repo URL -->
   <span id='forkongithub'><a href='https://github.com/DS4200-Fall21-Sec02/hw-03-practice-d3-hw-03-practice-d3-js-bw-si.git'>Fork me on GitHub</a></span>
@@ -33,34 +43,244 @@
     <h1>hw-03: Practicing D3</h1>
 
     <p>
-      Replace this text. Use this space to describe your visualizations.
-    </p>
-
-    <h2>Simple formatting instructions</h2>
-
-    <p>
-      Use <code>&lt;p&gt;&lt;/p&gt;</code> tags to enclose a paragraph in html. <br>
-      Use <code>&lt;h2&gt;&lt;/h2&gt;</code> to enclose a heading. <br>
-      Use <code>&lt;br&gt;</code> to force a line break.
-    </p>
-
-    <p>
-      There are two premade <code>div</code> in this document that will hold your visualizations. The first one has id <code>vis1</code>, the second one has <code>vis2</code>. Write your explanation and analysis close to each of your visualizations.
-    </p>
-
-    <p>
-      Your first visualization goes here:
+    The below visualization is a scatter plot of some statistics of some NHL legends. The x axis represents goals per game and the y axis represents assists per game. You can see Wayne 'The Great One' Gretzky's point as the highest on the graph with 1.3 assists per game. Impressive! We chose these NHL stats because we love watching the NHL. The scatter plot is apt for this data becuase it clearly shows the outliers and how some legends were able to stand above the rest. The blue dots represent defensemen and the red dots represent forwards. 
     </p>
 
     <!-- Visualization goes here -->
-    <div class='vis-holder' id='vis1'></div>
+    <div class='vis-holder' id='vis1'>
+
+<!--Step Attempt at importing scatter plot from online-->
+<svg width="500" height="400"></svg>
+<script>
+
+	//initialize dataset
+	var dataset2 = new Array(50).fill(0).map(() => new Array(3).fill(0));
+
+
+
+	// load data and assign it to 2d array
+	d3.csv("data/Scatter_data.csv").then(function(data) {
+	    for (var i = 0; i < data.length; i++) {
+        	console.log(data[i].Name);
+        	console.log(data[i].GoalsPer);
+		
+		dataset2[i][0]=parseFloat(data[i].GoalsPer);
+		dataset2[i][1]=parseFloat(data[i].AssistsPer);
+		dataset2[i][2]=(data[i].Pos);
+   	 }
+
+       // Set margin and width
+        var svg = d3.select("svg"),
+            margin = 200,
+            width = svg.attr("width") - margin, //300
+            height = svg.attr("height") - margin //200
+
+        // Set scale of plot
+        var xScale = d3.scaleLinear().domain([0, 2]).range([0, width]),
+            yScale = d3.scaleLinear().domain([0, 2]).range([height, 0]);
+            
+        var g = svg.append("g")
+            .attr("transform", "translate(" + 100 + "," + 100 + ")");
+
+        // Set the title page text and font style 
+        // Title
+        svg.append('text')
+        .attr('x', width/2 + 100)
+        .attr('y', 100)
+        .attr('text-anchor', 'middle')
+        .style('font-family', 'Helvetica')
+        .style('font-size', 20)
+        .text('Goals vs. Assists NHL Legends');
+        
+        // Label the x axis and font style
+        svg.append('text')
+        .attr('x', width/2 + 100)
+        .attr('y', height - 15 + 150)
+        .attr('text-anchor', 'middle')
+        .style('font-family', 'Helvetica')
+        .style('font-size', 12)
+        .text('Goals Per Game');
+        
+        // Label the y axis and font style
+        svg.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('transform', 'translate(60,' + height + ')rotate(-90)')
+        .style('font-family', 'Helvetica')
+        .style('font-size', 12)
+        .text('Assists Per Game');
+
+        // Set the bottom and left of the axes
+        g.append("g")
+         .attr("transform", "translate(0," + height + ")")
+         .call(d3.axisBottom(xScale));
+        
+        g.append("g")
+         .call(d3.axisLeft(yScale));
+        
+
+ 	 // Add a tooltip div. Here I define the general feature of the tooltip: stuff that do not depend 		on the data point.
+ 	 // Its opacity is set to 0: we don't see it by default.
+  	const tooltip = d3.select("#vis1")
+   	 .append("div")
+   	 .style("opacity", 0)
+   	 .attr("class", "tooltip")
+   	 .style("background-color", "white")
+   	 .style("border", "solid")
+   	 .style("border-width", "1px")
+   	 .style("border-radius", "5px")
+   	 .style("padding", "10px")
+	
+
+
+ 	 // A function that change this tooltip when the user hover a point.
+ 	 // Its opacity is set to 1: we can now see it. Plus it set the text and position of tooltip depen	ding on the datapoint (d)
+  	const mouseover = function(event, d) {
+   	 tooltip
+      	.style("opacity", 1)
+ 	 }
+
+  	const mousemove = function(event, d) {
+    		tooltip
+		.html(`The exact value of this point is (GoalsPer, AssistsPer, Position): ${d}`)
+      		.style("left", (event.x)/2 + "px")
+     		 .style("top", (event.y)/2 + "px")
+  }
+
+  // A function that change this tooltip when the leaves a point: just need to set opacity to 0 again
+  const mouseleave = function(event,d) {
+    tooltip
+      .transition()
+      .duration(200)
+      .style("opacity", 0)
+  }
+
+
+
+        // Plot the data points 
+        svg.append('g')
+        .selectAll("dot")
+        .data(dataset2)
+        .enter()
+        .append("circle")
+        .attr("cx", function (d) { return xScale(d[0]); } )
+        .attr("cy", function (d) { return yScale(d[1]); } )
+        .attr("r", 3)
+        .attr("transform", "translate(" + 100 + "," + 100 + ")")
+      //  .style("fill", "#CC0000")
+				.style("fill", function(d){
+						if (d[2].normalize()==='F') {return "red"}
+						else {return "blue"};})
+			
+      .style("opacity", 0.7)
+      .style("stroke", "white")
+   	 .on("mouseover", mouseover )
+   	 .on("mousemove", mousemove )
+   	 .on("mouseleave", mouseleave );
+	console.log(dataset2);
+
+	});
+
+     
+</script>
+	    
+    </div>
+
+
+
 
 	  <p>
-      Your second visualization goes here:
+	  We chose this dataset because it enabled us to compare the widely regarded 2 best NHL players of all time (Wayne Gretzky and Mario Lemieux) with the 3 best players in the NHL over the last 20 years (Crosby, Ovechkin, and McDavid). The raw data is linked here, and a cleaned version exists in the data folder of the repo, called “data_bar”. The 3 stats used are ratios that eliminate the factor of games played and instead indicate the superior player of the 5 in Goals, Assists, and points. In this case, a grouped bar chart, by grouping each quantitative variable (points/gp, assists/gp, goals/gp) and then indicating the player (categorical variable) by their own respective color, enables a user of the visualization to quickly and effectively determine the player with the best statistics in each of the 3 aforementioned groups. The colors are associated with players: Gretzky is red, Lemieux is blue, Mcdavid is orange, Crosby is pink and Ovechkin is yellow. 
+
+	<br>
     </p>
 
+    
     <!-- Visualization goes here -->
-    <div class='vis-holder' id='vis2'></div>
+    <div class='vis-holder' id='vis2'>
+
+    <svg width = "0" height = "500"></svg>
+    <script>
+// margin object with multiple attributes to properly space the bar graph
+    const margin = {top: 10, right: 30, bottom: 20, left: 50},
+    width = 360
+    height = 370;
+// appending svg we will use for graph
+    const svg1 = d3.select("#vis2")
+    .append("svg")
+      .attr("width", 460)
+      .attr("height", 470)
+    .append("g")
+      .attr("transform",`translate(50,10)`);
+      
+// reading in data
+    d3.csv("data/data_bar.csv").then( function(data) {
+// subgroups are player names and will later be represented by color
+      const subgroups = data.columns.slice(1)
+// groups are the 3 statistics we will group the bars by, mapped to a groups variable
+      const groups = data.map(d => d.Stat)
+// creating x axis
+      const x = d3.scaleBand()
+        .domain(groups)
+        .range([0, width])
+        .padding([0.2])
+      svg1.append("g")
+        .attr("transform", `translate(0, ${height})`)
+        .call(d3.axisBottom(x).tickSize(0));
+// creating y axis
+      const y = d3.scaleLinear()
+        .domain([0, 2.2])
+        .range([ height, 0 ]);
+      svg1.append("g")
+        .call(d3.axisLeft(y));
+
+      const xSubgroup = d3.scaleBand()
+        .domain(subgroups)
+        .range([0, x.bandwidth()])
+        .padding([0.05])
+// creating color by subgroup
+      const color = d3.scaleOrdinal()
+        .domain(subgroups)
+        .range([d3.color("red"),d3.color("blue"),d3.color("orange"), d3.color("pink"), d3.color("yellow")])
+//using data to create the bars
+      svg1.append("g")
+        .selectAll("g")
+        .data(data)
+        .join("g")
+          .attr("transform", d => `translate(${x(d.Stat)}, 0)`)
+        .selectAll("rect")
+        .data(function(d) { return subgroups.map(function(key) { return {key: key, value: d[key]}; }); })
+        .join("rect")
+          .attr("x", d => xSubgroup(d.key))
+          .attr("y", d => y(d.value))
+          .attr("width", xSubgroup.bandwidth())
+          .attr("height", d => height - y(d.value))
+          .attr("fill", d => color(d.key));
+// creating graph title
+      svg1.append("text")
+        .attr("x", 20)
+        .attr("y", 10)
+        .attr("font-size", 20)
+        .attr("font-weight", "bold")
+        .text("Statistics for NHL Legends");
+
+// creating and placing x label     
+      svg1.append("text")
+        .attr("x", 150)
+        .attr("y", 400)
+        .style("font-size", 12)
+        .text("Statistic Type");
+// creating and placing y label
+      svg1.append("text")
+        .attr("x", -75)
+        .attr("y", 200)
+        .attr("transform", "rotate(270,-30,200)")
+        .style("font-size", 12)
+        .text("Per-Game Statistic")
+
+ });
+
+</script>
+    </div>
 
     <h2>Acknowledgments</h2>
 
@@ -69,6 +289,21 @@
     </p>
 
     <ul>
+      <li><a href='https://www.educative.io/edpresso/how-to-create-a-scatter-plot-using-d3'>
+       How to create a scatter plot using D3</a>
+        by Shapar Khan was used as a basis for creating a scatter plot
+      </li>
+
+      <li><a href='https://www.d3-graph-gallery.com/graph/barplot_grouped_basicWide.html (Links to an external site.)'>
+        Grouped Bar Chart Reference</a>
+        . We used the prior source as a starting point for the grouped bar chart.
+      </li>
+
+      <li><a href='https://www.d3-graph-gallery.com/graph/scatter_tooltip.html'>
+        Scatter Plot Interactivity</a>
+         by Yan Holtz was a great starting point for the interactivity functionality  </li>
+
+
       <li><a href='https://d3js.org/'>
         D3: Data-Driven Documents</a>
         by Mike Bostock is used for manipulating the DOM to create visualizations.
