@@ -85,12 +85,12 @@
         // Set the title page text and font style 
         // Title
         svg.append('text')
-        .attr('x', width/2 + 100)
+        .attr('x', width/2-50)
         .attr('y', 100)
-        .attr('text-anchor', 'middle')
+        //.attr('text-anchor', 'middle')
         .style('font-family', 'Helvetica')
         .style('font-size', 20)
-        .text('Goals vs. Assists NHL Legends');
+        .text('Goals vs. Assists');
         
         // Label the x axis and font style
         svg.append('text')
@@ -124,7 +124,7 @@
    	 .append("div")
    	 .style("opacity", 0)
    	 .attr("class", "tooltip")
-   	 .style("background-color", "white")
+//   	 .style("background-color", "white")
    	 .style("border", "solid")
    	 .style("border-width", "1px")
    	 .style("border-radius", "5px")
@@ -136,13 +136,13 @@
  	 // Its opacity is set to 1: we can now see it. Plus it set the text and position of tooltip depen	ding on the datapoint (d)
   	const mouseover = function(event, d) {
    	 tooltip
-      	.style("opacity", 1)
+      	.style("opacity", .7)
  	 }
 
   	const mousemove = function(event, d) {
     		tooltip
-		.html(`The exact value of this point is (GoalsPer, AssistsPer, Position): ${d}`)
-      		.style("left", (event.x)/2 + "px")
+				.html(`The exact value of this point <br> is (GoalsPer, AssistsPer, Position): ${d}`)
+      		.style("left", (event.x)+ 225 + "px")
      		 .style("top", (event.y)/2 + "px")
   }
 
